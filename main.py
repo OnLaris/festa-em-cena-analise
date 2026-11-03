@@ -3,6 +3,7 @@ from funcoes import (
     carregar_dados,
     tratar_canais,
     tratar_categorias,
+    tratar_datas_venda,
     validar_valores_numericos
 )
 
@@ -148,6 +149,44 @@ def main():
 
         print("\nAté três contraexemplos:")
         print(exemplos_contraexemplos)
+        dados, total_datas_invalidas = tratar_datas_venda(
+        dados
+    )
+
+    print("\nTratamento das datas de venda")
+    print(
+        "Datas de venda inválidas ou vazias:",
+        total_datas_invalidas
+    )
+
+    print("\nExemplos de datas convertidas:")
+    print(
+        dados[
+            [
+                "data_venda_original",
+                "data_venda_brasileira",
+                "ano",
+                "mes",
+                "dia",
+                "hora",
+                "ano_mes"
+            ]
+        ].head(5)
+    )
+
+    exemplos_datas_invalidas = dados.loc[
+        ~dados["data_venda_valida"],
+        [
+            "pedido_id",
+            "data_venda_original"
+        ]
+    ].head(5)
+
+    if exemplos_datas_invalidas.empty:
+        print("\nNenhuma data de venda inválida.")
+    else:
+        print("\nExemplos de datas de venda inválidas:")
+        print(exemplos_datas_invalidas)
 
 
 if __name__ == "__main__":

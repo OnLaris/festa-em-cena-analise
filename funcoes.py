@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 import pandas as pd
 
@@ -261,3 +262,79 @@ def analisar_entrega_status(dados):
     }
 
     return dados, resultado, exemplos_contraexemplos
+
+def converter_data_venda(valor):
+    """
+    Converte uma data no formato ano-mês-dia hora:minuto:segundo.
+    Retorna None quando o texto está vazio ou é inválido.
+    """
+
+    if texto_ausente(valor):
+        return None
+
+    try:
+        return datetime.strptime(
+            str(valor).strip(),
+            "%Y-%m-%d %H:%M:%S"
+        )
+    except ValueError:
+        return None
+
+
+def tratar_datas_venda(dados):
+    """
+    Preserva a data original, converte as datas e cria
+    colunas com ano, mês, dia, hora e formato brasileiro.
+    """
+
+    dados = dados.copy()
+    dados["data_venda_original"] = dados["data_venda"]
+
+    datas_convertidas = []
+    anos = []
+    meses = []
+    dias = []
+    horas = []
+    datas_brasileiras = []
+    periodos = []
+
+    for valor in dados["data_venda_original"]:
+        data_convertida = converter_data_venda(valor)
+        datas_convertidas.append(data_convertida)
+
+        if data_convertida is None:
+            anos.append(None)
+            meses.append(None)
+            dias.append(None)
+            horas.append(None)
+            datas_brasileiras.append(None)
+            periodos.append(None)
+        else:
+            anos.append(data_convertida.year)
+            meses.append(data_convertida.month)
+            dias.append(data_convertida.day)
+            horas.append(data_convertida.hour)
+            datas_brasileiras.append(
+                data_convertida.strftime("%d/%m/%Y")
+            )
+            periodos.append(
+                data_convertida.strftime("%Y-%m")
+            )
+
+    dados["data_venda_convertida"] = datas_convertidas
+    dados["data_venda_valida"] = dados[
+        "data_venda_convertida"
+    ].notna()
+
+    dados["ano"] = pd.array(anos, dtype="Int64")
+    dados["mes"] = pd.array(meses, dtype="Int64")
+    dados["dia"] = pd.array(dias, dtype="Int64")
+    dados["hora"] = pd.array(horas, dtype="Int64")
+    dados["data_venda_brasileira"] = datas_brasileiras
+    dados["ano_mes"] = periodos
+
+    total_datas_invalidas = int(
+        (~dados["data_venda_valida"]).sum()
+    )
+
+    return dados, total_datas_invalidas
