@@ -186,3 +186,78 @@ def validar_valores_numericos(dados):
         total_problemas_preco,
         total_pedidos_afetados
     )
+
+
+def analisar_entrega_status(dados):
+    """
+    Investiga se todos os pedidos sem data de entrega
+    possuem o status Cancelado.
+    """
+
+    dados = dados.copy()
+
+    status_comparacao = (
+        dados["status_pedido"]
+        .fillna("")
+        .str.strip()
+        .str.lower()
+    )
+
+    entrega_comparacao = (
+        dados["data_entrega"]
+        .fillna("")
+        .str.strip()
+    )
+
+    sem_data_entrega = entrega_comparacao == ""
+    status_cancelado = status_comparacao == "cancelado"
+
+    sem_entrega_cancelado = (
+        sem_data_entrega
+        & status_cancelado
+    )
+
+    sem_entrega_outro_status = (
+        sem_data_entrega
+        & (~status_cancelado)
+    )
+
+    dados["sem_data_entrega"] = sem_data_entrega
+
+    total_cancelados = int(
+        status_cancelado.sum()
+    )
+
+    total_sem_entrega_cancelados = int(
+        sem_entrega_cancelado.sum()
+    )
+
+    total_sem_entrega_outro_status = int(
+        sem_entrega_outro_status.sum()
+    )
+
+    hipotese_verdadeira = (
+        total_sem_entrega_outro_status == 0
+    )
+
+    exemplos_contraexemplos = dados.loc[
+        sem_entrega_outro_status,
+        [
+            "pedido_id",
+            "data_entrega",
+            "status_pedido"
+        ]
+    ].head(3)
+
+    resultado = {
+        "total_cancelados": total_cancelados,
+        "sem_entrega_cancelados": (
+            total_sem_entrega_cancelados
+        ),
+        "sem_entrega_outro_status": (
+            total_sem_entrega_outro_status
+        ),
+        "hipotese_verdadeira": hipotese_verdadeira
+    }
+
+    return dados, resultado, exemplos_contraexemplos

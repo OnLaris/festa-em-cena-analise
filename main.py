@@ -1,4 +1,5 @@
 from funcoes import (
+    analisar_entrega_status,
     carregar_dados,
     tratar_canais,
     tratar_categorias,
@@ -108,6 +109,45 @@ def main():
 
     print("\nExemplos de problemas numéricos:")
     print(exemplos_problemas)
+
+    (
+        dados,
+        resultado_entrega,
+        exemplos_contraexemplos
+    ) = analisar_entrega_status(dados)
+
+    print("\nRegra de pedidos sem data de entrega")
+
+    print(
+        "Total de pedidos cancelados:",
+        resultado_entrega["total_cancelados"]
+    )
+
+    print(
+        "Sem entrega e cancelados:",
+        resultado_entrega[
+            "sem_entrega_cancelados"
+        ]
+    )
+
+    print(
+        "Sem entrega e com outro status:",
+        resultado_entrega[
+            "sem_entrega_outro_status"
+        ]
+    )
+
+    if resultado_entrega["hipotese_verdadeira"]:
+        print(
+            "Conclusão: a hipótese é verdadeira na base."
+        )
+    else:
+        print(
+            "Conclusão: a hipótese é falsa na base."
+        )
+
+        print("\nAté três contraexemplos:")
+        print(exemplos_contraexemplos)
 
 
 if __name__ == "__main__":
