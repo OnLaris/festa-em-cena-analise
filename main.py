@@ -69,7 +69,7 @@ def main():
         "Canais não reconhecidos:",
         total_canais_nao_reconhecidos
     )
-    
+
 
     (
         dados,
@@ -248,7 +248,103 @@ def main():
         print(
             "Limitação: o resultado considera apenas datas "
             "válidas da base fictícia."
-        )   
+        )
+
+        print("\n" + "=" * 60)
+        print("RELATÓRIO FINAL — FESTA EM CENA")
+        print("=" * 60)
+
+        print("\n1. VISÃO GERAL")
+        print("Total de linhas lidas:", len(dados))
+
+        print("\n2. TRATAMENTO DAS CATEGORIAS")
+        print(
+            "Categorias vazias preenchidas:",
+            total_vazias
+        )
+        print(
+            "Categorias não vazias alteradas:",
+            total_alteradas
+        )
+
+        print("\n3. VALIDAÇÃO NUMÉRICA")
+        print(
+            "Problemas na quantidade:",
+            total_problemas_quantidade
+        )
+        print(
+            "Problemas no preço unitário:",
+            total_problemas_preco
+        )
+        print(
+            "Pedidos com algum problema numérico:",
+            total_pedidos_afetados
+        )
+
+        print("\n4. VALIDAÇÃO DAS DATAS")
+        print(
+            "Datas de venda inválidas ou vazias:",
+            total_datas_invalidas
+        )
+
+        print("\n5. STATUS E DATA DE ENTREGA")
+        print(
+            "Total de pedidos cancelados:",
+            resultado_entrega["total_cancelados"]
+        )
+        print(
+            "Sem entrega e cancelados:",
+            resultado_entrega[
+                "sem_entrega_cancelados"
+            ]
+        )
+        print(
+            "Sem entrega e com outro status:",
+            resultado_entrega[
+                "sem_entrega_outro_status"
+            ]
+        )
+
+        if resultado_entrega["hipotese_verdadeira"]:
+            print(
+                "Conclusão: a hipótese é verdadeira."
+            )
+        else:
+            print(
+                "Conclusão: a hipótese é falsa."
+            )
+
+        print("\n6. PEDIDOS REGISTRADOS POR CANAL")
+
+        for canal, quantidade in contagem_canais.items():
+            print(
+                f"{canal}: {int(quantidade)} pedidos"
+            )
+
+        print(
+            "Registros excluídos por canal:",
+            canais_excluidos
+        )
+
+        print("\n7. PEDIDOS REGISTRADOS POR ANO-MÊS")
+
+        for periodo, quantidade in contagem_periodos.items():
+            print(
+                f"{periodo}: {int(quantidade)} pedidos"
+            )
+
+        print(
+            "Registros excluídos por data:",
+            datas_excluidas
+        )
+
+        print("\n8. OBSERVAÇÃO")
+        print(
+            "As contagens representam pedidos registrados, "
+            "não unidades, receita ou vendas concluídas."
+        )
+
+        print("=" * 60)
 
 if __name__ == "__main__":
     main()
