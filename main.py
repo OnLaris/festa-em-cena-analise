@@ -1,6 +1,8 @@
 from funcoes import (
     analisar_entrega_status,
     carregar_dados,
+    contar_pedidos_por_canal,
+    contar_pedidos_por_periodo,
     tratar_canais,
     tratar_categorias,
     tratar_datas_venda,
@@ -67,13 +69,7 @@ def main():
         "Canais não reconhecidos:",
         total_canais_nao_reconhecidos
     )
-
-    print("\nPedidos por canal reconhecido:")
-    print(
-        dados["canal_venda"].value_counts(
-            dropna=True
-        )
-    )
+    
 
     (
         dados,
@@ -188,6 +184,71 @@ def main():
         print("\nExemplos de datas de venda inválidas:")
         print(exemplos_datas_invalidas)
 
+    (
+        contagem_canais,
+        canais_excluidos
+    ) = contar_pedidos_por_canal(dados)
+
+    print("\nPedidos registrados por canal:")
+    print(contagem_canais)
+
+    print(
+        "Registros excluídos da contagem por canal:",
+        canais_excluidos
+    )
+
+    (
+        contagem_periodos,
+        datas_excluidas
+    ) = contar_pedidos_por_periodo(dados)
+
+    print("\nPedidos registrados por ano-mês:")
+    print(contagem_periodos)
+
+    print(
+        "Registros excluídos da contagem por período:",
+        datas_excluidas
+    )
+
+    if not contagem_canais.empty:
+        canal_destaque = contagem_canais.idxmax()
+        pedidos_canal_destaque = int(
+            contagem_canais.max()
+        )
+
+        print("\nDescoberta por canal:")
+        print(
+            f"{canal_destaque} apresentou "
+            f"{pedidos_canal_destaque} pedidos registrados."
+        )
+        print(
+            "Interpretação: foi o canal com maior número "
+            "de pedidos na base analisada."
+        )
+        print(
+            "Limitação: a contagem inclui todos os status "
+            "e não representa receita ou vendas concluídas."
+        )
+
+    if not contagem_periodos.empty:
+        periodo_destaque = contagem_periodos.idxmax()
+        pedidos_periodo_destaque = int(
+            contagem_periodos.max()
+        )
+
+        print("\nDescoberta por período:")
+        print(
+            f"{periodo_destaque} apresentou "
+            f"{pedidos_periodo_destaque} pedidos registrados."
+        )
+        print(
+            "Interpretação: foi o período com maior número "
+            "de pedidos entre os períodos analisados."
+        )
+        print(
+            "Limitação: o resultado considera apenas datas "
+            "válidas da base fictícia."
+        )   
 
 if __name__ == "__main__":
     main()

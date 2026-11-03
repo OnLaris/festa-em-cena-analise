@@ -338,3 +338,50 @@ def tratar_datas_venda(dados):
     )
 
     return dados, total_datas_invalidas
+
+
+def contar_pedidos_por_canal(dados):
+    """
+    Conta pedidos por canal usando somente canais reconhecidos.
+    Todos os status são incluídos.
+    """
+
+    canais_reconhecidos = dados["canal_venda"].notna()
+
+    contagem_canais = (
+        dados.loc[canais_reconhecidos]
+        .groupby("canal_venda")
+        .size()
+        .sort_values(ascending=False)
+    )
+
+    total_excluidos = int(
+        (~canais_reconhecidos).sum()
+    )
+
+    return contagem_canais, total_excluidos
+
+
+def contar_pedidos_por_periodo(dados):
+    """
+    Conta pedidos por ano-mês usando somente datas válidas.
+    Todos os status são incluídos.
+    """
+
+    datas_validas = (
+        dados["data_venda_valida"]
+        & dados["ano_mes"].notna()
+    )
+
+    contagem_periodos = (
+        dados.loc[datas_validas]
+        .groupby("ano_mes")
+        .size()
+        .sort_index()
+    )
+
+    total_excluidos = int(
+        (~datas_validas).sum()
+    )
+
+    return contagem_periodos, total_excluidos
