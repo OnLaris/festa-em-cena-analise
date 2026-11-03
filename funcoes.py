@@ -95,3 +95,94 @@ def padronizar_canal(valor):
     canal_normalizado = str(valor).strip().lower()
 
     return MAPA_CANAIS.get(canal_normalizado)
+
+
+def tratar_canais(dados):
+    """
+    Preserva o canal original, aplica a padronização e retorna
+    as contagens de canais reconhecidos e não reconhecidos.
+    """
+
+    dados = dados.copy()
+    dados["canal_venda_original"] = dados["canal_venda"]
+
+    dados["canal_venda"] = dados[
+        "canal_venda_original"
+    ].apply(padronizar_canal)
+
+    canais_reconhecidos = dados["canal_venda"].notna()
+    canais_nao_reconhecidos = dados["canal_venda"].isna()
+
+    total_canais_reconhecidos = int(
+        canais_reconhecidos.sum()
+    )
+
+    total_canais_nao_reconhecidos = int(
+        canais_nao_reconhecidos.sum()
+    )
+
+    return (
+        dados,
+        total_canais_reconhecidos,
+        total_canais_nao_reconhecidos
+    )
+
+
+def validar_valores_numericos(dados):
+    """
+    Valida quantidade e preço sem inventar valores.
+    Retorna o DataFrame e as contagens de problemas.
+    """
+
+    dados = dados.copy()
+
+    quantidade_numerica = pd.to_numeric(
+        dados["quantidade"],
+        errors="coerce"
+    )
+
+    preco_numerico = pd.to_numeric(
+        dados["preco_unitario"],
+        errors="coerce"
+    )
+
+    quantidade_valida = (
+        quantidade_numerica.notna()
+        & (quantidade_numerica > 0)
+        & (quantidade_numerica % 1 == 0)
+    )
+
+    preco_valido = (
+        preco_numerico.notna()
+        & (preco_numerico >= 0)
+    )
+
+    dados["quantidade_convertida"] = quantidade_numerica
+    dados["preco_unitario_convertido"] = preco_numerico
+
+    dados["problema_quantidade"] = ~quantidade_valida
+    dados["problema_preco"] = ~preco_valido
+
+    dados["problema_numerico"] = (
+        dados["problema_quantidade"]
+        | dados["problema_preco"]
+    )
+
+    total_problemas_quantidade = int(
+        dados["problema_quantidade"].sum()
+    )
+
+    total_problemas_preco = int(
+        dados["problema_preco"].sum()
+    )
+
+    total_pedidos_afetados = int(
+        dados["problema_numerico"].sum()
+    )
+
+    return (
+        dados,
+        total_problemas_quantidade,
+        total_problemas_preco,
+        total_pedidos_afetados
+    )

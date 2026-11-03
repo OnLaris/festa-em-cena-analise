@@ -1,4 +1,9 @@
-from funcoes import carregar_dados, tratar_categorias
+from funcoes import (
+    carregar_dados,
+    tratar_canais,
+    tratar_categorias,
+    validar_valores_numericos
+)
 
 
 def main():
@@ -15,27 +20,94 @@ def main():
     print("\nValores ausentes por coluna:")
     print(dados.isna().sum())
 
-    # Esta linha cria as variáveis usadas abaixo.
     dados, total_vazias, total_alteradas = tratar_categorias(
         dados
     )
 
     print("\nTratamento das categorias")
-    print("Categorias vazias preenchidas:", total_vazias)
+    print(
+        "Categorias vazias preenchidas:",
+        total_vazias
+    )
     print(
         "Categorias não vazias alteradas:",
         total_alteradas
     )
 
-    exemplos_alterados = dados[
-        dados["categoria_original"].fillna("").astype(str)
+    categoria_original_comparacao = (
+        dados["categoria_original"]
+        .fillna("")
+        .astype(str)
+    )
+
+    exemplos_categorias = dados[
+        categoria_original_comparacao
         != dados["categoria"]
     ][
         ["categoria_original", "categoria"]
     ].head(10)
 
     print("\nExemplos de categorias tratadas:")
-    print(exemplos_alterados)
+    print(exemplos_categorias)
+
+    (
+        dados,
+        total_canais_reconhecidos,
+        total_canais_nao_reconhecidos
+    ) = tratar_canais(dados)
+
+    print("\nTratamento dos canais de venda")
+    print(
+        "Canais reconhecidos:",
+        total_canais_reconhecidos
+    )
+    print(
+        "Canais não reconhecidos:",
+        total_canais_nao_reconhecidos
+    )
+
+    print("\nPedidos por canal reconhecido:")
+    print(
+        dados["canal_venda"].value_counts(
+            dropna=True
+        )
+    )
+
+    (
+        dados,
+        total_problemas_quantidade,
+        total_problemas_preco,
+        total_pedidos_afetados
+    ) = validar_valores_numericos(dados)
+
+    print("\nValidação de quantidade e preço")
+    print(
+        "Problemas na quantidade:",
+        total_problemas_quantidade
+    )
+    print(
+        "Problemas no preço unitário:",
+        total_problemas_preco
+    )
+    print(
+        "Pedidos afetados por algum problema numérico:",
+        total_pedidos_afetados
+    )
+
+    exemplos_problemas = dados[
+        dados["problema_numerico"]
+    ][
+        [
+            "pedido_id",
+            "quantidade",
+            "preco_unitario",
+            "problema_quantidade",
+            "problema_preco"
+        ]
+    ].head(10)
+
+    print("\nExemplos de problemas numéricos:")
+    print(exemplos_problemas)
 
 
 if __name__ == "__main__":
